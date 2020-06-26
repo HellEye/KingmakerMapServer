@@ -18,3 +18,4 @@ def afterRequest(body):
 
 import rest.kingdoms.Kingdom
 import rest.hex.Hex
+import rest.kingdoms.KingdomStats

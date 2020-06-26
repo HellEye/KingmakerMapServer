@@ -210,6 +210,7 @@ def getFullHexData():
     out="[\n"
     for dto in hexDTOs:
         out+=dto.toJson()+",\n"
-    out=out[:-2]
+    if len(out) > 3:
+        out=out[:-2]
     out+="]"
     return out

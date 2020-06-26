@@ -30,7 +30,9 @@ tables = [
     spymaster INTEGER,
     treasurer INTEGER,
     viceroy INTEGER,
-    warden INTEGER
+    warden INTEGER,
+    treasury INTEGER,
+    kingdomId INTEGER REFERENCES kingdoms
     )
     """,
     """
@@ -204,6 +206,7 @@ def get(table: str, columns=None, query=None, connection=None):
 @withConnection
 @commit
 def put(table, data, columns, connection: sqlite3.Connection = None):
+    print(f"INSERT INTO {table} {getColumnString(columns)} VALUES {getFormattedData(data)}")
     connection \
         .execute(f"INSERT INTO {table} {getColumnString(columns)} VALUES {getFormattedData(data)}")
     return None
