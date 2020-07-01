@@ -77,19 +77,24 @@ class KingdomStatsDTO:
             }}
             """
         )
+
     """
     INSERT INTO kingdom_stats (
-    alignment,economy,stability,loyalty,unrest,consumption,consumption_modifier,treasury,ruler,rulerattributes,stability,loyalty,economy,consort,councilor,general,granddiplomat,heir,highPriest,magister,marshal,royalEnforcer,spymaster,spymasterattributes,stability,loyalty,economy,treasurer,viceroy,warden,kingdomId) 
+    alignment,economy,stability,loyalty,unrest,consumption,consumption_modifier,
+    rulerattributes,spymasterattributes,ruler,
+    consort,councilor,general,granddiplomat,heir,highpriest,magister,marshal,
+    royalenforcer,spymaster,treasurer,viceroy,warden,treasury,kingdomid) 
     VALUES (0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0)
 
     """
+
     @staticmethod
     def getColumns():
         return ["alignment", "economy", "stability", "loyalty", "unrest", "consumption", "consumption_modifier",
-                "treasury", "ruler", "rulerattributes",
-                "consort", "councilor", "general", "granddiplomat", "heir", "highPriest", "magister", "marshal",
-                "royalEnforcer", "spymaster", "spymasterattributes",
-                "treasurer", "viceroy", "warden", "kingdomId"]
+                "rulerattributes", "spymasterattributes", "ruler",
+                "consort", "councilor", "general", "granddiplomat", "heir", "highpriest", "magister", "marshal",
+                "royalenforcer", "spymaster",
+                "treasurer", "viceroy", "warden", "treasury", "kingdomId"]
 
     def toArray(self):
         out = []
@@ -150,19 +155,21 @@ def arrayFromFormData(form):
     out.append(form["kingdomId"])
     return out
 
+
 @app.route("/api/kingdomStats", methods=["GET"])
 def getAllKingdomStats():
     row = db.get("kingdom_stats")
     if len(row) > 0 and len(row[0]) > 0:
-        out="["
+        out = "["
         for kingdom in row:
-            out+=f"{KingdomStatsDTO(kingdom).toJson()},\n"
-        if len(out)>3:
-            out=out[:-2]
-        out+="]"
+            out += f"{KingdomStatsDTO(kingdom).toJson()},\n"
+        if len(out) > 3:
+            out = out[:-2]
+        out += "]"
         return out
     else:
         return json.dumps([])
+
 
 @app.route("/api/kingdomStats/<kingdomId>", methods=["GET"])
 def getKingdomStats(kingdomId):
