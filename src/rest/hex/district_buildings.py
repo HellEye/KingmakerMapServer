@@ -14,21 +14,20 @@ def getDistrictBuildings(id=None):
                              query=f"district.id='{id}'"))
 
 
-
 @app.route("/api/district/buildings", methods=["PUT"])
 def insertDistrictBuilding():
     data, columns = getDataAndColumns(request)
-    try:
-        db.put("district_buildings", data, columns)
-        return "200 OK"
-    except e:
-        return "500 ERROR"
+    outId = db.put("district_buildings", data, columns)
+    return json.dumps({"id":outId})
+
+@app.route("/api/district/buildings/<id>/<xcoord>-<ycoord>", methods=["POST"])
+def updateDistrictBuilding(id, xcoord, ycoord):
+    data, columns = getDataAndColumns(request)
+    outId = db.post("district_buildings", data, columns, f"xcoord={xcoord} AND ycoord={ycoord} AND district={id}")
+    return jsonDumps({"id":outId})
 
 
 @app.route("/api/district/buildings/<id>/<xcoord>-<ycoord>", methods=["DELETE"])
 def deleteDistrictBuilding(id=None, xcoord=None, ycoord=None):
-    try:
-        db.delete('district_buildings', f"district='{id}' AND xcoord={xcoord} AND ycoord={ycoord}")
-        return "200 OK"
-    except e:
-        return "500 ERROR"
+    db.delete('district_buildings', f"district='{id}' AND xcoord={xcoord} AND ycoord={ycoord}")
+    return json.dumps([])

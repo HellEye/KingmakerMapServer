@@ -78,7 +78,8 @@ tables = [
     district INTEGER NOT NULL REFERENCES district,
     building INTEGER NOT NULL REFERENCES buildings,
     xcoord INTEGER NOT NULL,
-    ycoord INTEGER NOT NULL)
+    ycoord INTEGER NOT NULL,
+    rotation INTEGER NOT NULL)
     """,
 
     """
@@ -207,17 +208,17 @@ def get(table: str, columns=None, query=None, connection=None):
 @commit
 def put(table, data, columns, connection: sqlite3.Connection = None):
     print(f"INSERT INTO {table} {getColumnString(columns)} VALUES {getFormattedData(data)}")
-    connection \
+    out=connection \
         .execute(f"INSERT INTO {table} {getColumnString(columns)} VALUES {getFormattedData(data)}")
-    return None
+    return out.lastrowid
 
 
 @withConnection
 @commit
 def post(table, data, columns, query, connection=None):
-    connection \
+    out=connection \
         .execute(f"UPDATE {table} SET {getPostColumns(data, columns)} WHERE {query}")
-    return None
+    return out.lastrowid
 
 
 @withConnection

@@ -19,31 +19,22 @@ def getSettlementById(id=None):
                              query=f"id='{id}'"))
 
 
-
 @app.route("/api/settlement", methods=["PUT"])
 def insertSettlement():
     data, columns = getDataAndColumns(request)
-    try:
-        db.put("settlement", data, columns)
-        return "200 OK"
-    except e:
-        return "500 ERROR"
+    print(data, columns)
+    outId=db.put("settlement", data, columns)
+    return json.dumps({"id":outId})
 
 
 @app.route("/api/settlement/<id>", methods=["POST"])
 def updateSettlement(id=None):
     data, columns = getDataAndColumns(request)
-    try:
-        db.post("settlement", data, columns, f"id='{id}'")
-        return "200 OK"
-    except e:
-        return "500 ERROR"
+    db.post("settlement", data, columns, f"id='{id}'")
+    return json.dumps([])
 
 
 @app.route("/api/settlement/<id>", methods=["DELETE"])
 def deleteSettlement(id=None):
-    try:
-        db.delete('settlement', f"id='{id}'")
-        return "200 OK"
-    except e:
-        return "500 ERROR"
+    db.delete('settlement', f"id='{id}'")
+    return json.dumps([])

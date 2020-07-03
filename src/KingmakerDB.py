@@ -19,3 +19,7 @@ def afterRequest(body):
 import rest.kingdoms.Kingdom
 import rest.hex.Hex
 import rest.kingdoms.KingdomStats
+import rest.hex.settlement
+import rest.hex.district
+import rest.hex.district_buildings
+

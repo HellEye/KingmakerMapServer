@@ -69,18 +69,18 @@ class districtDTO:
         self.buildings = buildings
 
     def buildingToJson(self):
-        out="["
+        out = "["
         for b in self.buildings:
-            out+=b.toJson()+","
-        out=out[:-1]
-        out+="]"
+            out += b.toJson() + ","
+        out = out[:-1]
+        out += "]"
 
     def toJson(self):
         return (
             f"""
             {{
                 "id":{self.id},
-                "buildings":{self.buildingToJson() if len(self.buildings)>0 else "[]"}
+                "buildings":{self.buildingToJson() if len(self.buildings) > 0 else "[]"}
             }}
             """
         )
@@ -101,12 +101,13 @@ class settlementDTO:
         self.districts = districts
 
     def districtToJson(self):
-        out="["
+        out = "["
         for d in self.districts:
-            out+=d.toJson()+","
-        out=out[:-1]
-        out+="]"
+            out += d.toJson() + ","
+        out = out[:-1]
+        out += "]"
         return out
+
     def toJson(self):
         return (
             f"""
@@ -114,10 +115,11 @@ class settlementDTO:
                 "id":{self.id},
                 "name":"{self.name}",
                 "hexId":{self.hexId},
-                "districts":{self.districtToJson() if len(self.districts)>0 else "[]"}
+                "districts":{self.districtToJson() if len(self.districts) > 0 else "[]"}
             }}
             """
         )
+
 
 class hexDataDTO:
     id = 0
@@ -127,7 +129,7 @@ class hexDataDTO:
     terrainType = 0
     settlement = None
 
-    def __init__(self, id, x, y, ownedBy, terrainType, settlement = None):
+    def __init__(self, id, x, y, ownedBy, terrainType, settlement=None):
         self.id = id
         self.x = x
         self.y = y
@@ -137,7 +139,7 @@ class hexDataDTO:
 
     def toJson(self):
         return (
-        f"""{{
+            f"""{{
             "id":{self.id},
             "x":{self.x},
             "y":{self.y},
@@ -155,62 +157,61 @@ def getHexes():
 
 
 @app.route("/api/hex/<x>-<y>", methods=["GET"])
-def getHexByName(x=None, y=None):
+def getHexByCoords(x=None, y=None):
     return json.dumps(db.get("hex", query=f"xcoord={x} AND ycoord={y}"))
 
 
 @app.route("/api/hex", methods=["PUT"])
 def insertHex():
     data, columns = getDataAndColumns(request)
-    try:
-        db.put("hex", data, columns)
-        return "200 OK"
-    except e:
-        return "500 ERROR"
+
+    db.put("hex", data, columns)
+    return json.dumps([])
 
 
 @app.route("/api/hex/<x>-<y>", methods=["POST"])
 def updateHex(x=None, y=None):
     data, columns = getDataAndColumns(request)
-    try:
+    hex = db.get("hex", query=f"xcoord={x} AND ycoord={y}")
+    if len(hex) > 0:
+        print("Updating")
         db.post("hex", data, columns, query=f"xcoord={x} AND ycoord={y}")
-        return "200 OK"
-    except e:
-        return "500 ERROR"
+    else:
+        print("Creating new hex")
+        db.put("hex", data, columns)
+    return getHexByCoords(x, y)
 
 
-@app.route("/api/kingdoms/<x>-<y>", methods=["DELETE"])
+@app.route("/api/hex/<x>-<y>", methods=["DELETE"])
 def deleteHex(x=None, y=None):
-    try:
-        db.delete('kingdoms', query=f"xcoord={x} AND ycoord={y}")
-        return "200 OK"
-    except e:
-        return "500 ERROR"
+    db.delete('hex', query=f"xcoord={x} AND ycoord={y}")
+    return json.dumps([])
 
 
 @app.route("/api/hex/hexData", methods=["GET"])
 def getFullHexData():
     hexes = db.get("hex")
-    hexDTOs=[]
+    hexDTOs = []
+
     for hex in hexes:
         hexDTOs.append(hexDataDTO(hex[0], hex[1], hex[2], hex[3], hex[4]))
 
     for hexDTO in hexDTOs:
-        hexSettlement=db.get("settlement", query=f"hex={hexDTO.id}")
-        if len(hexSettlement)>0:
-            hexDTO.settlement=settlementDTO(hexSettlement[0][0], hexSettlement[0][1], hexSettlement[0][2])
-            districts=db.get("district", query=f"settlement={hexDTO.settlement.id}")
+        hexSettlement = db.get("settlement", query=f"hex={hexDTO.id}")
+        if len(hexSettlement) > 0:
+            hexDTO.settlement = settlementDTO(hexSettlement[0][0], hexSettlement[0][1], hexSettlement[0][2])
+            districts = db.get("district", query=f"settlement={hexDTO.settlement.id}")
             for d in districts:
-                district=districtDTO(d[0])
+                district = districtDTO(d[0])
                 hexDTO.settlement.districts.append(district)
-                buildings=db.get("district_buildings", query=f"district={district.id}")
+                buildings = db.get("district_buildings", query=f"district={district.id}")
                 for b in buildings:
                     district.buildings.append(buildingDTO(b[0], b[1], b[2], b[3], b[4]))
 
-    out="[\n"
+    out = "[\n"
     for dto in hexDTOs:
-        out+=dto.toJson()+",\n"
+        out += dto.toJson() + ",\n"
     if len(out) > 3:
-        out=out[:-2]
-    out+="]"
+        out = out[:-2]
+    out += "]"
     return out

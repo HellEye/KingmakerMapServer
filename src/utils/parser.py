@@ -1,5 +1,5 @@
 from flask import request
-from pprint import pprint
+
 
 def getFormattedData(data):
     columnString = ""
@@ -37,6 +37,9 @@ def getDataAndColumns(request: request):
     data = []
     columns = []
     for key in request.form:
-        data.append(request.form[key])
         columns.append(key)
+        if request.form[key].isnumeric():
+            data.append(request.form[key])
+        else:
+            data.append(f"'{request.form[key]}'")
     return data, columns

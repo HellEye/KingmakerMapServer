@@ -69,7 +69,7 @@ class KingdomStatsDTO:
                     "loyalty":{"false" if self.spymasterAttributes != 2 else "true"},
                     "economy":{"false" if self.spymasterAttributes != 3 else "true"}
                 }},
-                "treasurer":{self.treasury},
+                "treasurer":{self.treasurer},
                 "viceroy":{self.viceroy},
                 "warden":{self.warden}
                 }},
