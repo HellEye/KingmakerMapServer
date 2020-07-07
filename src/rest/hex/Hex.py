@@ -36,13 +36,15 @@ class buildingDTO:
     building = 0
     x = 0
     y = 0
+    rotation=0
 
-    def __init__(self, id, district, building, x, y):
+    def __init__(self, id, district, building, x, y, rotation):
         self.id = id
         self.district = district
         self.building = building
         self.x = x
         self.y = y
+        self.rotation=rotation
 
     def toJson(self):
         return (
@@ -52,7 +54,8 @@ class buildingDTO:
                 "district":{self.district},
                 "building":{self.building},
                 "x":{self.x},
-                "y":{self.y}
+                "y":{self.y},
+                "rotation":{self.rotation}
             }}
             """
         )
@@ -74,6 +77,7 @@ class districtDTO:
             out += b.toJson() + ","
         out = out[:-1]
         out += "]"
+        return out
 
     def toJson(self):
         return (
@@ -86,28 +90,58 @@ class districtDTO:
         )
 
 
+class settlementImprovementDTO:
+    id = 0
+    settlement = 0
+    building = 0
+
+    def __init__(self, id, settlement, building):
+        self.id = id
+        self.settlement = settlement
+        self.building = building
+
+    def toJson(self):
+        return f"""
+        {{
+            "id":{self.id},
+            "settlement":{self.settlement},
+            "building":{self.building}
+        }}"""
+
+
 class settlementDTO:
     id = 0
     name = "Name"
     hexId = 0
     districts = []
+    settlementImprovements = []
 
-    def __init__(self, id, name, hexId, districts=None):
+    def __init__(self, id, name, hexId, districts=None, settlementImprovements=None):
         if districts is None:
             districts = []
+        if settlementImprovements is None:
+            settlementImprovements = []
         self.id = id
         self.name = name
         self.hexId = hexId
         self.districts = districts
+        self.settlementImprovements = settlementImprovements
 
     def districtToJson(self):
         out = "["
         for d in self.districts:
-            out += d.toJson() + ","
-        out = out[:-1]
+            out += d.toJson() + ",\n"
+        out = out[:-2]
         out += "]"
         return out
 
+    def settlementImprovementsToJson(self):
+        out="["
+        for s in self.settlementImprovements:
+            out+=s.toJson()+",\n"
+        out=out[:-2]
+        out+="]"
+        return out
     def toJson(self):
         return (
             f"""
@@ -115,7 +149,8 @@ class settlementDTO:
                 "id":{self.id},
                 "name":"{self.name}",
                 "hexId":{self.hexId},
-                "districts":{self.districtToJson() if len(self.districts) > 0 else "[]"}
+                "districts":{self.districtToJson() if len(self.districts) > 0 else "[]"},
+                "settlementImprovements":{self.settlementImprovementsToJson() if len(self.settlementImprovements)>0 else "[]"}
             }}
             """
         )
@@ -192,21 +227,28 @@ def deleteHex(x=None, y=None):
 def getFullHexData():
     hexes = db.get("hex")
     hexDTOs = []
-
     for hex in hexes:
         hexDTOs.append(hexDataDTO(hex[0], hex[1], hex[2], hex[3], hex[4]))
 
     for hexDTO in hexDTOs:
         hexSettlement = db.get("settlement", query=f"hex={hexDTO.id}")
         if len(hexSettlement) > 0:
-            hexDTO.settlement = settlementDTO(hexSettlement[0][0], hexSettlement[0][1], hexSettlement[0][2])
+            hexDTO.settlement = settlementDTO(hexSettlement[0][0],
+                                              hexSettlement[0][1],
+                                              hexSettlement[0][2])
+
+            settlementImprovements=db.get("settlement_improvements", query=f"settlement={hexDTO.settlement.id}")
+            for s in settlementImprovements:
+                improvement=settlementImprovementDTO(s[0], s[1], s[2])
+                hexDTO.settlement.settlementImprovements.append(improvement)
+
             districts = db.get("district", query=f"settlement={hexDTO.settlement.id}")
             for d in districts:
                 district = districtDTO(d[0])
                 hexDTO.settlement.districts.append(district)
                 buildings = db.get("district_buildings", query=f"district={district.id}")
                 for b in buildings:
-                    district.buildings.append(buildingDTO(b[0], b[1], b[2], b[3], b[4]))
+                    district.buildings.append(buildingDTO(b[0], b[1], b[2], b[3], b[4], b[5]))
 
     out = "[\n"
     for dto in hexDTOs:

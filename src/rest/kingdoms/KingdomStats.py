@@ -35,6 +35,7 @@ class KingdomStatsDTO:
         self.warden = array[23]
         self.treasury = array[24]
         self.kingdomId = array[25]
+        self.controlDCMod = array[26]
 
     def toJson(self):
         return (
@@ -73,7 +74,8 @@ class KingdomStatsDTO:
                 "viceroy":{self.viceroy},
                 "warden":{self.warden}
                 }},
-            "kingdomId":{self.kingdomId}
+            "kingdomId":{self.kingdomId},
+            "controlDCMod":{self.controlDCMod}
             }}
             """
         )
@@ -94,7 +96,7 @@ class KingdomStatsDTO:
                 "rulerattributes", "spymasterattributes", "ruler",
                 "consort", "councilor", "general", "granddiplomat", "heir", "highpriest", "magister", "marshal",
                 "royalenforcer", "spymaster",
-                "treasurer", "viceroy", "warden", "treasury", "kingdomId"]
+                "treasurer", "viceroy", "warden", "treasury", "kingdomId", "controldcmod"]
 
     def toArray(self):
         out = []
@@ -123,6 +125,7 @@ class KingdomStatsDTO:
         out.append(self.viceroy)
         out.append(self.warden)
         out.append(self.kingdomId)
+        out.append(self.controlDCMod)
         return out
 
 
@@ -153,6 +156,7 @@ def arrayFromFormData(form):
     out.append(form["warden"])
     out.append(form["treasury"])
     out.append(form["kingdomId"])
+    out.append(form["controlDCMod"])
     return out
 
 

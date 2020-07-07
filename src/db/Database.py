@@ -32,7 +32,8 @@ tables = [
     viceroy INTEGER,
     warden INTEGER,
     treasury INTEGER,
-    kingdomId INTEGER REFERENCES kingdoms
+    kingdomId INTEGER REFERENCES kingdoms,
+    controldcmod INTEGER NOT NULL
     )
     """,
     """
@@ -97,8 +98,14 @@ tables = [
     CREATE TABLE IF NOT EXISTS building_discount(
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     settlement INTEGER NOT NULL REFERENCES settlement,
-    building INTEGER NOT NULL REFERENCES buildings)
+    building INTEGER NOT NULL REFERENCES buildings);
     """,
+    """
+    CREATE TABLE IF NOT EXISTS settlement_improvements(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    settlement INTEGER NOT NULL REFERENCES settlement,
+    building INTEGER NOT NULL REFERENCES buildings);
+    """
 
 ]
 startDataCheck = [

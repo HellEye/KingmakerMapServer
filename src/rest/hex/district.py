@@ -9,15 +9,14 @@ from utils.parser import getDataAndColumns
 
 @app.route("/api/district", methods=["GET"])
 def getDistricts():
-    outJson = json.dumps(db.get("kingdoms"))
+    outJson = json.dumps(db.get("district"))
     return outJson
 
 
 @app.route("/api/district/<id>", methods=["GET"])
 def getDistrictsBySettlementId(id=None):
-    return json.dumps(db.get("district LEFT JOIN settlement ON district.settlement=settlement.id",
-                             columns="district.id, district.settlement",
-                             query=f"settlement.id='{id}'"))
+    return json.dumps(db.get("district",
+                             query=f"settlement='{id}'"))
 
 
 @app.route("/api/district", methods=["PUT"])
