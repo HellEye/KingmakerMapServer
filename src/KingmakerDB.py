@@ -23,3 +23,4 @@ import rest.hex.settlement
 import rest.hex.district
 import rest.hex.district_buildings
 import rest.hex.settlement_improvements
+import rest.hex.hex_improvements

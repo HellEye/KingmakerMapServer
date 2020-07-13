@@ -6,7 +6,6 @@ import db.Database as db
 from KingmakerDB import app
 
 
-# TODO add treasury and kingdom id
 class KingdomStatsDTO:
     def __init__(self, array):
         self.id = array[0]
@@ -36,6 +35,7 @@ class KingdomStatsDTO:
         self.treasury = array[24]
         self.kingdomId = array[25]
         self.controlDCMod = array[26]
+        self.extraBP=array[27]
 
     def toJson(self):
         return (
@@ -75,7 +75,8 @@ class KingdomStatsDTO:
                 "warden":{self.warden}
                 }},
             "kingdomId":{self.kingdomId},
-            "controlDCMod":{self.controlDCMod}
+            "controlDCMod":{self.controlDCMod},
+            "extraBP":{self.extraBP}
             }}
             """
         )
@@ -85,8 +86,8 @@ class KingdomStatsDTO:
     alignment,economy,stability,loyalty,unrest,consumption,consumption_modifier,
     rulerattributes,spymasterattributes,ruler,
     consort,councilor,general,granddiplomat,heir,highpriest,magister,marshal,
-    royalenforcer,spymaster,treasurer,viceroy,warden,treasury,kingdomid) 
-    VALUES (0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0)
+    royalenforcer,spymaster,treasurer,viceroy,warden,treasury,kingdomid,controldcmod, extrabp) 
+    VALUES (0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, 0, 0)
 
     """
 
@@ -96,7 +97,7 @@ class KingdomStatsDTO:
                 "rulerattributes", "spymasterattributes", "ruler",
                 "consort", "councilor", "general", "granddiplomat", "heir", "highpriest", "magister", "marshal",
                 "royalenforcer", "spymaster",
-                "treasurer", "viceroy", "warden", "treasury", "kingdomId", "controldcmod"]
+                "treasurer", "viceroy", "warden", "treasury", "kingdomId", "controldcmod", "extrabp"]
 
     def toArray(self):
         out = []
@@ -126,6 +127,7 @@ class KingdomStatsDTO:
         out.append(self.warden)
         out.append(self.kingdomId)
         out.append(self.controlDCMod)
+        out.append(self.extraBP)
         return out
 
 
@@ -157,6 +159,7 @@ def arrayFromFormData(form):
     out.append(form["treasury"])
     out.append(form["kingdomId"])
     out.append(form["controlDCMod"])
+    out.append(form["extraBP"])
     return out
 
 

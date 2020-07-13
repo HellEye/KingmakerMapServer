@@ -33,7 +33,8 @@ tables = [
     warden INTEGER,
     treasury INTEGER,
     kingdomId INTEGER REFERENCES kingdoms,
-    controldcmod INTEGER NOT NULL
+    controldcmod INTEGER NOT NULL,
+    extrabp INTEGER NOT NULL
     )
     """,
     """
@@ -123,15 +124,14 @@ startDataCheck = [
 startData = [
     """
     INSERT INTO terrain_type (name)
-    VALUES ('Cavern'), ('Coastline'), ('Desert'), ('Forest'), ('Hills'), 
+    VALUES ('Cavern'), ('Desert'), ('Forest'), ('Hills'), 
     ('Jungle'), ('Marsh'), ('Mountains'), ('Plains'), ('Water')
     """,
     """
     INSERT INTO improvement (name)
     VALUES ('Aqueduct'), ('Bridge'), ('Canal'), ('Farm'), ('Fishery'), ('Fort'), ('Highway'),
-    ('Mine'), ('Quarry'), ('Road'), ('Sawmill'), ('Watchtower')
+    ('Mine'), ('Quarry'), ('Road'), ('Sawmill'), ('Watchtower'), ('Lair'), ('Landmark'), ('Resource'), ('River')
     """,
-    # TODO change all names to camelCase
     """
     INSERT INTO buildings (name)
     VALUES ('Academy'), ('Alchemist'), ('Arena'), ('Bank'), ('Bardic College'), ('Barracks'), ('Black Market'), 
@@ -144,7 +144,7 @@ startData = [
     ('Orphanage'), ('Palace'), ('Park'), ('Paved Streets'), ('Pier'), ('Sewer System'), ('Shop'),
     ('Shrine'), ('Smithy'), ('Stable'), ('Stockyard'), ('Tannery'), ('Tavern'), ('Temple'),
     ('Tenement'), ('Theater'), ('Town Hall'), ('Trade Shop'), ('University'), ('Watchtower'),
-    ('Watergate'), ('Waterfront'), ('Waterway 1'), ('Waterway 2')
+    ('Watergate'), ('Waterfront'), ('Waterway')
     """
 ]
 database = "src/db/Kingmaker.sqlite"
@@ -223,6 +223,7 @@ def put(table, data, columns, connection: sqlite3.Connection = None):
 @withConnection
 @commit
 def post(table, data, columns, query, connection=None):
+    print(f"UPDATE {table} SET {getPostColumns(data, columns)} WHERE {query}")
     out=connection \
         .execute(f"UPDATE {table} SET {getPostColumns(data, columns)} WHERE {query}")
     return out.lastrowid

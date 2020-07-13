@@ -109,6 +109,24 @@ class settlementImprovementDTO:
         }}"""
 
 
+class discountDTO:
+    id=0
+    settlement=0
+    building=0
+
+    def __init__(self, id, settlement, building):
+        self.id=id
+        self.settlement=settlement
+        self.building=building
+
+    def toJson(self):
+        return f"""
+        {{
+            "id":{self.id},
+            "settlement":{self.settlement},
+            "building":{self.building}
+        }}"""
+
 class settlementDTO:
     id = 0
     name = "Name"
@@ -116,16 +134,19 @@ class settlementDTO:
     districts = []
     settlementImprovements = []
 
-    def __init__(self, id, name, hexId, districts=None, settlementImprovements=None):
+    def __init__(self, id, name, hexId, districts=None, settlementImprovements=None, discounts=None):
         if districts is None:
             districts = []
         if settlementImprovements is None:
             settlementImprovements = []
+        if discounts is None:
+            discounts=[]
         self.id = id
         self.name = name
         self.hexId = hexId
         self.districts = districts
         self.settlementImprovements = settlementImprovements
+        self.discounts=discounts
 
     def districtToJson(self):
         out = "["
@@ -142,6 +163,13 @@ class settlementDTO:
         out=out[:-2]
         out+="]"
         return out
+    def discountsToJson(self):
+        out="["
+        for s in self.discounts:
+            out+=s.toJson()+",\n"
+        out=out[:-2]
+        out+="]"
+        return out
     def toJson(self):
         return (
             f"""
@@ -150,11 +178,29 @@ class settlementDTO:
                 "name":"{self.name}",
                 "hexId":{self.hexId},
                 "districts":{self.districtToJson() if len(self.districts) > 0 else "[]"},
-                "settlementImprovements":{self.settlementImprovementsToJson() if len(self.settlementImprovements)>0 else "[]"}
+                "settlementImprovements":{self.settlementImprovementsToJson() if len(self.settlementImprovements)>0 else "[]"},
+                "discounts":{self.discountsToJson() if len(self.discounts)>0 else "[]"}
             }}
             """
         )
 
+class hexImprovementDTO:
+    id=0
+    hex=0
+    improvement=0
+    def __init__(self, id, improvement, hex):
+        self.id=id
+        self.improvement=improvement
+        self.hex=hex
+
+    def toJson(self):
+        return f"""
+        {{
+            "id":{self.id},
+            "hex":{self.hex},
+            "improvement":{self.improvement}
+        }}
+        """
 
 class hexDataDTO:
     id = 0
@@ -164,13 +210,24 @@ class hexDataDTO:
     terrainType = 0
     settlement = None
 
-    def __init__(self, id, x, y, ownedBy, terrainType, settlement=None):
+    def __init__(self, id, x, y, ownedBy, terrainType, settlement=None, hexImprovements=None):
+        if hexImprovements is None:
+            hexImprovements=[]
         self.id = id
         self.x = x
         self.y = y
         self.ownedBy = ownedBy
         self.terrainType = terrainType
         self.settlement = settlement
+        self.hexImprovements=hexImprovements
+
+    def getHexImprovements(self):
+        out="[\n"
+        for i in self.hexImprovements:
+            out+=i.toJson()+",\n"
+        out=out[:-2]
+        out+="]"
+        return out
 
     def toJson(self):
         return (
@@ -180,6 +237,7 @@ class hexDataDTO:
             "y":{self.y},
             "ownedBy": {self.ownedBy},
             "terrainType": {self.terrainType},
+            "hexImprovements":{self.getHexImprovements() if len(self.hexImprovements)>0 else "[]"},
             "settlement":{self.settlement.toJson() if self.settlement is not None else "{}"}
         }}"""
         )
@@ -229,8 +287,12 @@ def getFullHexData():
     hexDTOs = []
     for hex in hexes:
         hexDTOs.append(hexDataDTO(hex[0], hex[1], hex[2], hex[3], hex[4]))
-
     for hexDTO in hexDTOs:
+        hexImprovements=db.get("hex_improvement", query=f"hex={hexDTO.id}")
+        for impr in hexImprovements:
+            hexDTO.hexImprovements.append(hexImprovementDTO(impr[0], impr[1], impr[2]))
+
+        print(hexDTO.hexImprovements)
         hexSettlement = db.get("settlement", query=f"hex={hexDTO.id}")
         if len(hexSettlement) > 0:
             hexDTO.settlement = settlementDTO(hexSettlement[0][0],
@@ -241,6 +303,11 @@ def getFullHexData():
             for s in settlementImprovements:
                 improvement=settlementImprovementDTO(s[0], s[1], s[2])
                 hexDTO.settlement.settlementImprovements.append(improvement)
+
+            discounts=db.get("building_discount", query=f"settlement={hexDTO.settlement.id}")
+            for d in discounts:
+                discount=discountDTO(d[0], d[1], d[2])
+                hexDTO.settlement.discounts.append(discount)
 
             districts = db.get("district", query=f"settlement={hexDTO.settlement.id}")
             for d in districts:
