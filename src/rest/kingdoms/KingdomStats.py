@@ -1,10 +1,10 @@
 import json
 
-from flask import request
-
+from flask import request, Blueprint
 import db.Database as db
-from KingmakerDB import app
-
+# from KingmakerDB import notify
+app=Blueprint('kingdomStats', 'KingmakerServer')
+from KingmakerDB import notify
 
 class KingdomStatsDTO:
     def __init__(self, array):
@@ -36,6 +36,10 @@ class KingdomStatsDTO:
         self.kingdomId = array[25]
         self.controlDCMod = array[26]
         self.extraBP=array[27]
+        self.expansionEdict=array[28]
+        self.holidayEdict=array[29]
+        self.taxationEdict=array[30]
+        self.recruitmentEdict=array[31]
 
     def toJson(self):
         return (
@@ -76,7 +80,11 @@ class KingdomStatsDTO:
                 }},
             "kingdomId":{self.kingdomId},
             "controlDCMod":{self.controlDCMod},
-            "extraBP":{self.extraBP}
+            "extraBP":{self.extraBP},
+            "expansionEdict":{self.expansionEdict},
+            "holidayEdict":{self.holidayEdict},
+            "taxationEdict":{self.taxationEdict},
+            "recruitmentEdict":{self.recruitmentEdict}
             }}
             """
         )
@@ -86,8 +94,8 @@ class KingdomStatsDTO:
     alignment,economy,stability,loyalty,unrest,consumption,consumption_modifier,
     rulerattributes,spymasterattributes,ruler,
     consort,councilor,general,granddiplomat,heir,highpriest,magister,marshal,
-    royalenforcer,spymaster,treasurer,viceroy,warden,treasury,kingdomid,controldcmod, extrabp) 
-    VALUES (0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, 0, 0)
+    royalenforcer,spymaster,treasurer,viceroy,warden,treasury,kingdomid,controldcmod, extrabp,expansionedict,holidayedict,taxationedict,recruitmentedict) 
+    VALUES (0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, 0, 0,0,0,0,0)
 
     """
 
@@ -97,7 +105,7 @@ class KingdomStatsDTO:
                 "rulerattributes", "spymasterattributes", "ruler",
                 "consort", "councilor", "general", "granddiplomat", "heir", "highpriest", "magister", "marshal",
                 "royalenforcer", "spymaster",
-                "treasurer", "viceroy", "warden", "treasury", "kingdomId", "controldcmod", "extrabp"]
+                "treasurer", "viceroy", "warden", "treasury", "kingdomId", "controldcmod", "extrabp", "expansionedict","holidayedict","taxationedict","recruitmentedict"]
 
     def toArray(self):
         out = []
@@ -128,6 +136,10 @@ class KingdomStatsDTO:
         out.append(self.kingdomId)
         out.append(self.controlDCMod)
         out.append(self.extraBP)
+        out.append(self.expansionEdict)
+        out.append(self.holidayEdict)
+        out.append(self.taxationEdict)
+        out.append(self.recruitmentEdict)
         return out
 
 
@@ -160,6 +172,11 @@ def arrayFromFormData(form):
     out.append(form["kingdomId"])
     out.append(form["controlDCMod"])
     out.append(form["extraBP"])
+    out.append(form["expansionEdict"])
+    out.append(form["holidayEdict"])
+    out.append(form["taxationEdict"])
+    out.append(form["recruitmentEdict"])
+
     return out
 
 
@@ -175,7 +192,7 @@ def getAllKingdomStats():
         out += "]"
         return out
     else:
-        return json.dumps([])
+        return "null"
 
 
 @app.route("/api/kingdomStats/<kingdomId>", methods=["GET"])
@@ -184,20 +201,19 @@ def getKingdomStats(kingdomId):
     if len(row) > 0:
         return KingdomStatsDTO(row[0]).toJson()
     else:
-        return json.dumps([])
-
+        return "null"
 
 @app.route("/api/kingdomStats/<kingdomId>", methods=["POST"])
 def updateKingdomStats(kingdomId):
     data = arrayFromFormData(request.form)
     columns = KingdomStatsDTO.getColumns()
     db.post("kingdom_stats", data, columns, query=f"kingdomId={kingdomId}")
-    return json.dumps([])
+    return f'{{"id":{kingdomId}, "name":"kingdomStats"}}'
 
-
+@notify('test3')
 @app.route("/api/kingdomStats", methods=["PUT"])
 def addKingdomStats():
     data = arrayFromFormData(request.form)
     columns = KingdomStatsDTO.getColumns()
-    db.put("kingdom_stats", data, columns)
-    return json.dumps([])
+    out=db.put("kingdom_stats", data, columns)
+    return json.dumps({"id":out, "name":"kingdomStats"})

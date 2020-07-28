@@ -34,7 +34,11 @@ tables = [
     treasury INTEGER,
     kingdomId INTEGER REFERENCES kingdoms,
     controldcmod INTEGER NOT NULL,
-    extrabp INTEGER NOT NULL
+    extrabp INTEGER NOT NULL,
+    expansionedict INTEGER NOT NULL,
+    holidayedict INTEGER NOT NULL,
+    taxationedict INTEGER NOT NULL,
+    recruitmentedict INTEGER NOT NULL
     )
     """,
     """
@@ -54,7 +58,9 @@ tables = [
     xcoord INTEGER NOT NULL , 
     ycoord INTEGER NOT NULL , 
     owned_by INTEGER NOT NULL REFERENCES kingdoms,
-    terrain_type INTEGER REFERENCES terrain_type)
+    terrain_type INTEGER REFERENCES terrain_type,
+    label TEXT
+    )
     """,
 
     """
@@ -182,6 +188,7 @@ def commit(func):
     return wrapper
 
 
+
 @withConnection
 def createTables(connection):
     cursor = connection.cursor()
@@ -214,7 +221,7 @@ def get(table: str, columns=None, query=None, connection=None):
 @withConnection
 @commit
 def put(table, data, columns, connection: sqlite3.Connection = None):
-    print(f"INSERT INTO {table} {getColumnString(columns)} VALUES {getFormattedData(data)}")
+    # print(f"INSERT INTO {table} {getColumnString(columns)} VALUES {getFormattedData(data)}")
     out=connection \
         .execute(f"INSERT INTO {table} {getColumnString(columns)} VALUES {getFormattedData(data)}")
     return out.lastrowid
@@ -224,9 +231,10 @@ def put(table, data, columns, connection: sqlite3.Connection = None):
 @commit
 def post(table, data, columns, query, connection=None):
     print(f"UPDATE {table} SET {getPostColumns(data, columns)} WHERE {query}")
+    id=connection.execute(f"SELECT id FROM {table} WHERE {query}").fetchall()
     out=connection \
         .execute(f"UPDATE {table} SET {getPostColumns(data, columns)} WHERE {query}")
-    return out.lastrowid
+    return id[0][0]
 
 
 @withConnection

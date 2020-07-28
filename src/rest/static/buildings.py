@@ -1,11 +1,12 @@
 import json
 
-from flask import request
+from flask import request, Blueprint
 
 import db.Database as db
-from KingmakerDB import app
+
 from utils.parser import getDataAndColumns
 
+app=Blueprint('buildings', 'KingmakerServer')
 
 @app.route("/api/building", methods=["GET"])
 def getBuildings():
