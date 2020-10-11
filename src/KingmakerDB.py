@@ -15,7 +15,7 @@ from rest.hex.settlement import app as blueprint_settlement
 from rest.hex.settlement_improvements import app as blueprint_settlementImprovements
 from rest.kingdoms.Kingdom import app as blueprint_kingdom
 from rest.kingdoms.KingdomStats import app as blueprint_kingdomStats
-
+from rest.hex.markers import app as blueprint_markers
 
 # def sendEvent(name, data):
 #     print(f'sending {name} with {data}')
@@ -43,7 +43,7 @@ app.register_blueprint(blueprint_kingdom)
 app.register_blueprint(blueprint_kingdomStats)
 app.register_blueprint(blueprint_settlement)
 app.register_blueprint(blueprint_settlementImprovements)
-
+app.register_blueprint(blueprint_markers)
 
 @app.before_request
 def beforeRequest():

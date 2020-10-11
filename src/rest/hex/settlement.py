@@ -27,7 +27,6 @@ def getSettlementById(id=None):
 @app.route("/api/settlement", methods=["PUT"])
 def insertSettlement():
     data, columns = getDataAndColumns(request)
-    print(data, columns)
     outId=db.put("settlement", data, columns)
     return json.dumps({"id":outId, "name":"settlements"})
 

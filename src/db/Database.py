@@ -113,6 +113,13 @@ tables = [
     settlement INTEGER NOT NULL REFERENCES settlement,
     building INTEGER NOT NULL REFERENCES buildings);
     """
+    """
+    CREATE TABLE IF NOT EXISTS markers(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    xcoord INTEGER NOT NULL, 
+    ycoord INTEGER NOT NULL,
+    color TEXT NOT NULL);
+    """
 
 ]
 startDataCheck = [
