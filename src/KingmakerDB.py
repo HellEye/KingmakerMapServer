@@ -17,9 +17,6 @@ from rest.kingdoms.Kingdom import app as blueprint_kingdom
 from rest.kingdoms.KingdomStats import app as blueprint_kingdomStats
 from rest.hex.markers import app as blueprint_markers
 
-# def sendEvent(name, data):
-#     print(f'sending {name} with {data}')
-#     socket.emit(name, data)
 def notify(eventName):
     def notifyInner(func):
         def notifyWrapper(*args, **kwargs):
@@ -30,8 +27,8 @@ def notify(eventName):
 
         notifyWrapper.__name__ = func.__name__
         return notifyWrapper
-
     return notifyInner
+    
 
 
 app.register_blueprint(blueprint_district)
